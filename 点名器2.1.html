@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12班学生点名器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0fff0; /* 浅绿色背景 */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 水平居中 */
+            justify-content: center; /* 垂直居中 */
+            height: 100vh;
+            margin: 0;
+        }
+
+        .header {
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            margin-bottom: 10px; /* 控制 logo 和名称与下方内容的间隔 */
+        }
+
+        .logo {
+            margin-right: 10px; /* Logo 和名称之间的间距 */
+        }
+
+        .school-name {
+            font-family: 'Brush Script MT', cursive; /* 艺术字体 */
+            font-size: 30px;
+            color: #3d8f3d; /* 调整颜色 */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 水平居中 */
+            border: 2px solid #c0e6c0; /* 较深的绿色边框 */
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #ffffff; /* 白色背景 */
+        }
+
+        .name-display {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .selected-name {
+            font-size: 48px; /* 被点名的人的字体放大一倍 */
+            color: #3d8f3d; /* 调整颜色以便突出显示 */
+        }
+
+        .warning-message {
+            color: red;
+            font-size: 18px;
+            margin-top: 10px;
+            display: none; /* 默认隐藏 */
+        }
+
+        button {
+            background-color: #88d9a3; /* 按钮背景颜色 */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #66b79c; /* 鼠标悬停时的背景颜色 */
+        }
+
+        .poetic-message {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #666;
+            display: none; /* 默认隐藏 */
+        }
+        .schoollogo {
+            display: inline-block;
+            vertical-align: middle;
+            width: 100px;
+            height: 75px;
+            box-shadow: 9px 11px 0px -2px rgb(128, 128, 128, 0.64);
+            border-radius: 100px
+        }
+
+        .infos {
+            
+            font-size: 40px;
+            font-weight: bold;
+            color: #44ffa9;
+            transform: skewX(-10deg);
+            letter-spacing: 3px;
+            -webkit-box-reflect: below 1px linear-gradient(transparent 30%, rgba(0, 0, 0, 0.35));
+            text-decoration: none;
+            /* font-family: "STXingkai", "STXingkai-Regular", "华文行楷", cursive; */
+
+
+        }
+        .container.footer {
+            background-color: #1cfc88;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span><a href="http://www.lhgz.net.cn/WarticleList.aspx?typeid=uZ9QPwIjYeg%3D"><img
+                src="https://pic.baike.soso.com/ugc/baikepic2/0/20240507073628-489633415_png_852_676_533051.jpg/300"
+                alt="六合高级中学" class="schoollogo"></a></span>
+    <span><a class="infos"
+            href="http://www.lhgz.net.cn/WarticleList.aspx?typeid=uZ9QPwIjYeg%3D">&nbsp;江苏省六合高级中学</a></span><span
+        style="font-size: 10px;">版权归Autpar所有</span>
+    </div>
+    <div class="container">
+        <h1>2.1版本点名器</h1> <!-- 点名器标题 -->
+        <div id="nameDisplay" class="name-display"></div> <!-- 显示被点名的人名 -->
+        <div>
+            <button id="nameButton">点名</button>
+            <button id="resetButton">重置概率</button>
+            <button id="settingsButton">设置</button>
+        </div>
+        <div id="settings" style="display: none; margin-top: 20px;">
+            <label for="numberSelect">选择每次点名人数:</label>
+            <select id="numberSelect">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
+        </div>
+        <div id="poeticMessage" class="poetic-message">每一次重置，都是新的开始；<br>与人为善，终会相见欢。</div>
+        <div id="warningMessage" class="warning-message">您操作的太快啦~</div> <!-- 提示消息 -->
+        <footer class="footer">
+                <p>&copy; Autpar给您拜个早年嘞~</p>
+            </footer>
+    </div>
+
+    <script>
+        const names = [
+        { name: '陈家乐', probability: 1 },
+        { name: '陈静雯', probability: 1 },
+        { name: '陈语嫣', probability: 1 },
+        { name: '陈钰婷', probability: 1 },
+        { name: '成晓宇', probability: 1 },
+        { name: '丁杰', probability: 1 },
+        { name: '傅蕾', probability: 1 },
+        { name: '葛广意', probability: 1},
+        { name: '李鼎硕', probability: 1 },
+        { name: '李致远', probability: 1 },
+        { name: '林舒易', probability: 1 },
+        { name: '林熹', probability: 1 },
+        { name: '林心悦', probability: 1 },
+        { name: '林悦', probability: 1 },
+        { name: '卢峻博', probability: 1 },
+        { name: '庞智胤', probability: 1 },
+        { name: '钱林', probability: 1 },
+        { name: '施良旭', probability: 1 },
+        { name: '唐金健', probability: 1 },
+        { name: '汪锐旸', probability: 1 },
+        { name: '王金应', probability: 1 },
+        { name: '王乐', probability: 1 },
+        { name: '王心睿', probability: 1 },
+        { name: '王星晨', probability: 1 },
+        { name: '王梓林', probability: 1 },
+        { name: '徐玛丽', probability: 1 },
+        { name: '徐舒莹', probability: 1 },
+        { name: '徐伟杰', probability: 1 },
+        { name: '徐文浩', probability: 1 },
+        { name: '徐源生', probability: 1 },
+        { name: '徐中星', probability: 1 },
+        { name: '徐子涛', probability: 1 },
+        { name: '许慧珊', probability: 1 },
+        { name: '杨畅', probability: 1 },
+        { name: '杨欢', probability: 1 },
+        { name: '杨兆轩', probability: 1 },
+        { name: '詹叠薪', probability: 1 },
+        { name: '张华晨', probability: 1 },
+        { name: '张吉芸', probability: 1 },
+        { name: '张岩', probability: 1 },
+        { name: '赵福临', probability: 1 },
+        { name: '郑宇航', probability: 1 },
+        { name: '周思尧', probability: 1 },
+        { name: '朱芸瑞', probability: 1 }      
+        ];
+
+        const nameDisplay = document.getElementById('nameDisplay');
+        const nameButton = document.getElementById('nameButton');
+        const resetButton = document.getElementById('resetButton');
+        const settingsButton = document.getElementById('settingsButton');
+        const numberSelect = document.getElementById('numberSelect');
+        const settingsDiv = document.getElementById('settings');
+        const poeticMessage = document.getElementById('poeticMessage');
+        const warningMessage = document.getElementById('warningMessage');
+
+        let isCooldown = false; // 冷却状态标志
+
+        nameButton.addEventListener('click', () => {
+            if (isCooldown) {
+                warningMessage.style.display = 'block'; // 显示提示消息
+                setTimeout(() => {
+                    warningMessage.style.display = 'none'; // 设定时间后隐藏提示消息
+                }, 2000);
+                return; // 结束函数执行，防止重复操作
+            }
+
+            const selectedCount = parseInt(numberSelect.value);
+            let selectedNames = selectNames(selectedCount);
+            nameDisplay.innerHTML = selectedNames.map(name => `<span class="selected-name">${name}</span>`).join(', '); // 替换显示被点名的人名
+
+            poeticMessage.style.display = 'none'; // 点名时隐藏重置概率提示
+
+            // 设置冷却时间
+            isCooldown = true;
+            setTimeout(() => {
+                isCooldown = false; // 结束冷却状态
+            }, 2000); // 冷却时间设置为2秒
+        });
+
+        resetButton.addEventListener('click', () => {
+            names.forEach(person => person.probability = 1);
+            poeticMessage.style.display = 'block'; // 显示诗意提示
+            nameDisplay.innerHTML = ''; // 清空被点名的人名显示
+        });
+
+        settingsButton.addEventListener('click', () => {
+            settingsDiv.style.display = settingsDiv.style.display === 'none' ? 'block' : 'none'; // 切换设置的显示状态
+        });
+
+        function selectNames(count) {
+            let selected = [];
+            let availableNames = names.filter(person => person.probability > 0);
+            
+            for (let i = 0; i < count; i++) {
+                if (availableNames.length === 0) break;
+                
+                let randomIndex = Math.floor(Math.random() * availableNames.length);
+                let chosenName = availableNames[randomIndex];
+                
+                selected.push(chosenName.name);
+                chosenName.probability = 0; // 下次被点名概率设置为0
+                availableNames = availableNames.filter(person => person !== chosenName); // 更新可用名单
+            }
+            return selected;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机点名器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #e0f7fa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 修改泛光背景效果 */
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.5;
+            z-index: -1;
+            animation: float 10s infinite alternate ease-in-out;
+        }
+
+        body::before {
+            background: #80deea;  /* 靛青色光晕 */
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            background: #81c784;  /* 保留绿色光晕 */
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(50px, 50px) scale(1.2);
+            }
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 172, 193, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: #00838f;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, #00acc1, #26c6da);
+            border-radius: 2px;
+        }
+
+        #result {
+            font-size: 2.5rem;
+            margin: 2rem 0;
+            min-height: 5rem;
+            color: #00838f;
+            padding: 2rem;
+            border-radius: 15px;
+            background: rgba(0, 172, 193, 0.1);
+            border: 1px solid rgba(0, 172, 193, 0.2);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #result.animate {
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        button {
+            background: linear-gradient(145deg, #00acc1, #26c6da);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 172, 193, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 172, 193, 0.4);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .reset-btn {
+            background: linear-gradient(145deg, #0097a7, #00bcd4);
+        }
+
+        .reset-btn:hover {
+            box-shadow: 0 6px 20px rgba(0, 151, 167, 0.4);
+        }
+
+        .settings {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .settings label {
+            color: #00838f;
+            font-size: 1.2rem;
+        }
+
+        .settings select {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 172, 193, 0.3);
+            background: rgba(255, 255, 255, 0.9);
+            color: #00838f;
+            font-size: 1.1rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .settings select:hover {
+            border-color: rgba(0, 172, 193, 0.5);
+            box-shadow: 0 2px 8px rgba(0, 172, 193, 0.2);
+        }
+
+        .settings select:focus {
+            border-color: #00acc1;
+            box-shadow: 0 2px 12px rgba(0, 172, 193, 0.3);
+        }
+
+        #result {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .selected-name {
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            padding: 0.5rem;
+        }
+
+        .school-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .school-logo {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0, 172, 193, 0.2);
+            padding: 8px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(224, 247, 250, 0.95));
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .school-logo::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00acc1, #26c6da);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .school-logo::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .school-logo:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(0, 172, 193, 0.3);
+        }
+
+        .school-logo:hover::before {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .school-name {
+            color: #00838f;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 172, 193, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 172, 193, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .school-name:hover {
+            transform: translateY(-2px);
+            background: rgba(0, 172, 193, 0.15);
+        }
+
+        .info-button {
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+            background: linear-gradient(145deg, #81c784, #66bb6a);
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(129, 199, 132, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .info-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(129, 199, 132, 0.3);
+        }
+
+        .info-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 172, 193, 0.2);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .info-modal.show {
+            display: block;
+            animation: modalIn 0.3s ease;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 999;
+        }
+
+        .modal-overlay.show {
+            display: block;
+        }
+
+        .info-content {
+            color: #00838f;
+            line-height: 1.6;
+        }
+
+        .info-content h3 {
+            margin-top: 0;
+            color: #00acc1;
+            border-bottom: 2px solid rgba(0, 172, 193, 0.2);
+            margin-bottom: 0.5rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #00acc1;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            transform: scale(1.1);
+            color: #00838f;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        /* 修改彩蛋按钮样式 */
+        .easter-egg-btn {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 15px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 2px 15px rgba(44, 62, 80, 0.3);
+            z-index: 100;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(45deg);
+        }
+
+        .easter-egg-btn::before {
+            content: '✦';
+            color: #fff;
+            font-size: 28px;
+            transform: rotate(-45deg);
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+            animation: starPulse 2s infinite;
+        }
+
+        .easter-egg-btn::after {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 100%
+            );
+            animation: rotate 3s linear infinite;
+        }
+
+        .easter-egg-btn:hover {
+            transform: rotate(45deg) scale(1.1);
+            box-shadow: 0 5px 20px rgba(44, 62, 80, 0.5);
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+        }
+
+        @keyframes starPulse {
+            0%, 100% { opacity: 0.8; transform: rotate(-45deg) scale(1); }
+            50% { opacity: 1; transform: rotate(-45deg) scale(1.2); }
+        }
+
+        /* 修改特效样式 */
+        .magic-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 1s ease;
+            mix-blend-mode: screen;
+        }
+
+        .magic-canvas.show {
+            opacity: 0.8;
+        }
+
+        /* 添加诗意语句样式 */
+        .poetic-text {
+            color: #00838f;
+            font-size: 1rem;
+            font-style: italic;
+            margin-top: 1.5rem;
+            padding: 0.8rem;
+            border-top: 1px dashed rgba(0, 172, 193, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+
+        .poetic-text.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 修改隐藏按钮样式 */
+        .secret-btn {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 50px;
+            height: 50px;
+            opacity: 0;
+            pointer-events: auto;  /* 保持可点击 */
+            appearance: none;
+            border: none;
+            background: none;
+            padding: 0;
+            margin: 0;
+            cursor: default;
+            touch-action: manipulation;  /* 优化移动端体验 */
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            outline: none !important;
+            z-index: 1000;
+        }
+
+        /* 移除所有可能的状态样式 */
+        .secret-btn:focus,
+        .secret-btn:active,
+        .secret-btn:hover,
+        .secret-btn::before,
+        .secret-btn::after {
+            outline: none !important;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* 添加表白特效样式 */
+        .love-effect {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 192, 203, 0.95), rgba(0, 0, 0, 0.9));
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .love-effect.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .love-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            font-size: 2rem;
+            opacity: 0;
+            transition: all 1s ease;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .love-content.show {
+            opacity: 1;
+        }
+
+        .love-heart {
+            color: #ff69b4;
+            font-size: 3rem;
+            animation: heartbeat 1.5s infinite, glow 2s infinite alternate;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 5px #ff69b4);
+            }
+            to {
+                filter: drop-shadow(0 0 20px #ff69b4);
+            }
+        }
+
+        /* 添加链接样式 */
+        .school-link {
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .school-logo {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .school-logo:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(0, 172, 193, 0.3);
+        }
+
+        .school-name {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .school-name:hover {
+            transform: translateY(-2px);
+            background: rgba(0, 172, 193, 0.15);
+        }
+
+        /* 添加主题切换按钮样式 */
+        .theme-toggle {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 2px 15px rgba(44, 62, 80, 0.3);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .theme-toggle::before {
+            content: '墨';
+            color: white;
+            font-family: "楷体", KaiTi, serif;
+            transition: all 0.4s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(44, 62, 80, 0.4);
+        }
+
+        /* 水墨主题样式 */
+        body.ink-theme {
+            background: #f5f5f5 url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PGNpcmNsZSBjeD0iMTUwIiBjeT0iMTUwIiByPSIxMDAiIGZpbGw9InJnYmEoMCwwLDAsMC4wMykiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiLz48L3N2Zz4=');
+        }
+
+        body.ink-theme::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxmaWx0ZXIgaWQ9ImEiPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIuMDAyIiBudW1PY3RhdmVzPSI1Ii8+PGZlQ29sb3JNYXRyaXggdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwLjA1IDAiLz48L2ZpbHRlcj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2EpIi8+PC9zdmc+') center/cover no-repeat fixed;
+            opacity: 0.8;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 水墨主题下的容器样式 */
+        body.ink-theme .container {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        body.ink-theme h1 {
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        body.ink-theme h1::after {
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+        }
+
+        body.ink-theme #result {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #2c3e50;
+        }
+
+        body.ink-theme button {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+        }
+
+        body.ink-theme .school-name {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #2c3e50;
+        }
+
+        body.ink-theme .poetic-text {
+            color: #2c3e50;
+            border-top: 1px dashed rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="school-info">
+            <a href="http://www.lhgz.net.cn/" target="_blank" class="school-link">
+                <img src="https://pic.baike.soso.com/ugc/baikepic2/0/20240507073628-489633415_png_852_676_533051.jpg/300" alt="学校logo" class="school-logo">
+            </a>
+            <a href="http://www.lhgz.net.cn/" target="_blank" class="school-link">
+                <div class="school-name">江苏省六合高级中学</div>
+            </a>
+            <button class="info-button" onclick="showInfo()">
+                <span>关于</span>
+                <span>AutPar</span>
+            </button>
+        </div>
+        <h1>点名器ProMax 2.0版本</h1>
+        <div class="settings">
+            <label for="numPeople">点名人数：</label>
+            <select id="numPeople">
+                <option value="1">1人</option>
+                <option value="2">2人</option>
+                <option value="3">3人</option>
+                <option value="4">4人</option>
+                <option value="5">5人</option>
+                <option value="6">6人</option>
+            </select>
+        </div>
+        <div id="result">
+            准备出发
+        </div>
+        <div class="poetic-text"></div>
+        <div class="button-group">
+            <button id="startBtn" onclick="toggleRoll()">随机抽取</button>
+            <button id="resetBtn" onclick="resetNames()" class="reset-btn">重置名单</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="hideInfo()"></div>
+    <div class="info-modal" id="infoModal">
+        <button class="close-modal" onclick="hideInfo()">×</button>
+        <div class="info-content">
+            <h3>点名器基础信息</h3>
+            <p>版本：ProMax 2.0</p>
+            <p>作者：AutPar</p>
+            <p>功能特点：</p>
+            <ul>
+                <li>支持1-6人同时点名</li>
+                <li>防重复点名机制</li>
+                <li>点名冷却时间：2秒</li>
+                <li>重置冷却时间：5秒</li>
+            </ul>
+            <p>更新日期：2025年</p>
+        </div>
+    </div>
+
+    <!-- 添加彩蛋按钮 -->
+    <canvas id="magicCanvas" class="magic-canvas"></canvas>
+    <button class="easter-egg-btn" onclick="toggleMagicEffect()"></button>
+
+    <button class="secret-btn" onclick="triggerLoveEffect()"></button>
+    <div class="love-effect" id="loveEffect" onclick="hideLoveEffect()">
+        <div class="love-content" id="loveContent">
+            <div class="love-heart">❤️</div>
+            <p>Dear Mary</p>
+            <p>你是我眼中最美的风景</p>
+            <p>是我心中最甜的记忆</p>
+            <p>愿与你共赴春夏秋冬</p>
+            <p style="font-size: 1.2rem; margin-top: 2rem; color: #ff69b4;">
+                - Love you forever -
+            </p>
+        </div>
+    </div>
+
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题"></button>
+
+    <script>
+        // 名单数组
+        const originalNameList =['陈家乐','陈静雯','陈语嫣','陈钰婷','成晓宇','丁杰','傅蕾','葛广意','李鼎硕','李致远','林舒易','林熹','林心悦','林悦','卢峻博','庞智胤','钱林','施良旭','唐金健','汪锐旸','王金应','王乐','王心睿','王星晨','王梓林','徐玛丽','徐舒莹','徐伟杰','徐文浩','徐源生','徐中星','徐子涛','许慧珊','杨畅','杨欢','杨兆轩','詹叠薪','张华晨','张吉芸','张岩','赵福临','郑宇航','周思尧','朱芸瑞'];
+
+        // 当前可选名单
+        let currentNameList = [...originalNameList];
+
+        const resultDiv = document.getElementById('result');
+        const startBtn = document.getElementById('startBtn');
+        let isButtonCooling = false;  // 新增：按钮冷却状态
+        let isResetCooling = false;  // 新增：重置按钮冷却状态
+        const resetBtn = document.getElementById('resetBtn');  // 新增：获取重置按钮元素
+        const numPeopleSelect = document.getElementById('numPeople');
+
+        function getRandomNames() {
+            const numPeople = parseInt(numPeopleSelect.value);
+            if (currentNameList.length === 0) {
+                resultDiv.textContent = "所有同学都已被点到";
+                startBtn.disabled = true;
+                return null;
+            }
+            
+            // 如果剩余人数少于选择的人数，则返回所有剩余的人
+            const count = Math.min(numPeople, currentNameList.length);
+            const selectedNames = [];
+
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * currentNameList.length);
+                selectedNames.push(currentNameList[randomIndex]);
+                currentNameList.splice(randomIndex, 1);
+            }
+            
+            return selectedNames;
+        }
+
+        function startCooldown() {
+            isButtonCooling = true;
+            startBtn.disabled = true;
+            
+            // 添加冷却倒计时显示
+            let cooldownTime = 2;
+            startBtn.textContent = `冷却中(${cooldownTime}s)`;
+            
+            const cooldownInterval = setInterval(() => {
+                cooldownTime--;
+                if (cooldownTime > 0) {
+                    startBtn.textContent = `冷却中(${cooldownTime}s)`;
+                } else {
+                    clearInterval(cooldownInterval);
+                    startBtn.textContent = '随机抽取';
+                    startBtn.disabled = false;
+                    isButtonCooling = false;
+                }
+            }, 1000);
+        }
+
+        function toggleRoll() {
+            if (isButtonCooling) return;
+            
+            const selectedNames = getRandomNames();
+            if (selectedNames) {
+                resultDiv.innerHTML = ''; // 清空之前的结果
+                selectedNames.forEach(name => {
+                    const nameDiv = document.createElement('div');
+                    nameDiv.textContent = name;
+                    nameDiv.className = 'selected-name';
+                    resultDiv.appendChild(nameDiv);
+                });
+                
+                // 隐藏之前的诗句
+                const poeticText = document.querySelector('.poetic-text');
+                poeticText.classList.remove('show');
+                
+                // 开始冷却
+                startCooldown();
+            }
+        }
+
+        function startResetCooldown() {
+            isResetCooling = true;
+            resetBtn.disabled = true;
+            
+            // 添加冷却倒计时显示
+            let cooldownTime = 5;
+            resetBtn.textContent = `冷却中(${cooldownTime}s)`;
+            
+            const cooldownInterval = setInterval(() => {
+                cooldownTime--;
+                if (cooldownTime > 0) {
+                    resetBtn.textContent = `冷却中(${cooldownTime}s)`;
+                } else {
+                    clearInterval(cooldownInterval);
+                    resetBtn.textContent = '重置名单';
+                    resetBtn.disabled = false;
+                    isResetCooling = false;
+                }
+            }, 1000);
+        }
+
+        function resetNames() {
+            if (isResetCooling) return;
+            
+            currentNameList = [...originalNameList];
+            startBtn.disabled = false;
+            resultDiv.innerHTML = "<div class='selected-name'>准备开始</div>";
+            
+            // 随机选择并显示一句诗意语句
+            const poeticText = document.querySelector('.poetic-text');
+            poeticText.textContent = poeticTexts[Math.floor(Math.random() * poeticTexts.length)];
+            poeticText.classList.remove('show');
+            
+            // 使用setTimeout显示和隐藏诗句
+            setTimeout(() => {
+                poeticText.classList.add('show');
+                
+                // 2秒后隐藏诗句
+                setTimeout(() => {
+                    poeticText.classList.remove('show');
+                }, 2000);
+            }, 100);
+            
+            // 开始重置冷却
+            startResetCooldown();
+        }
+
+        function showInfo() {
+            document.getElementById('infoModal').classList.add('show');
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        function hideInfo() {
+            document.getElementById('infoModal').classList.remove('show');
+            document.getElementById('modalOverlay').classList.remove('show');
+        }
+
+        // 特效相关变量和函数
+        let magicInterval;
+        let isEffectActive = false;
+
+        function initMagicEffect() {
+            const canvas = document.getElementById('magicCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const particleCount = 150;
+            const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f', '#9b59b6'];
+
+            class MagicParticle {
+                constructor() {
+                    this.reset();
+                    this.y = Math.random() * canvas.height;
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                }
+
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = -10;
+                    this.size = Math.random() * 4 + 2;
+                    this.speedY = Math.random() * 2 + 1;
+                    this.speedX = (Math.random() - 0.5) * 2;
+                    this.rotation = Math.random() * 360;
+                    this.rotationSpeed = (Math.random() - 0.5) * 4;
+                    this.opacity = Math.random() * 0.5 + 0.5;
+                    this.pulse = 0;
+                    this.pulseSpeed = Math.random() * 0.1;
+                }
+
+                update() {
+                    this.y += this.speedY;
+                    this.x += this.speedX;
+                    this.rotation += this.rotationSpeed;
+                    this.pulse += this.pulseSpeed;
+
+                    if (this.y > canvas.height + 10) {
+                        this.reset();
+                    }
+
+                    this.opacity = 0.5 + Math.sin(this.pulse) * 0.3;
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation * Math.PI / 180);
+                    ctx.globalAlpha = this.opacity;
+                    
+                    // 绘制星形
+                    ctx.beginPath();
+                    for (let i = 0; i < 5; i++) {
+                        ctx.lineTo(
+                            Math.cos((18 + i * 72) * Math.PI / 180) * this.size,
+                            Math.sin((18 + i * 72) * Math.PI / 180) * this.size
+                        );
+                        ctx.lineTo(
+                            Math.cos((54 + i * 72) * Math.PI / 180) * (this.size/2),
+                            Math.sin((54 + i * 72) * Math.PI / 180) * (this.size/2)
+                        );
+                    }
+                    ctx.closePath();
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    
+                    ctx.restore();
+                }
+            }
+
+            // 初始化粒子
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new MagicParticle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+            }
+
+            return setInterval(animate, 16);
+        }
+
+        function toggleMagicEffect() {
+            const canvas = document.getElementById('magicCanvas');
+            if (!isEffectActive) {
+                canvas.classList.add('show');
+                magicInterval = initMagicEffect();
+                isEffectActive = true;
+            } else {
+                canvas.classList.remove('show');
+                clearInterval(magicInterval);
+                isEffectActive = false;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (isEffectActive) {
+                clearInterval(magicInterval);
+                magicInterval = initMagicEffect();
+            }
+        });
+
+        // 添加诗意语句数组
+        const poeticTexts = [
+            "桃李不言，下自成蹊",
+            "长风破浪会有时，直挂云帆济沧海",
+            "书山有路勤为径，学海无涯苦作舟",
+            "天生我材必有用，千金散尽还复来",
+            "少年易学老难成，一寸光阴不可轻",
+            "莫等闲，白了少年头，空悲切",
+            "纸上得来终觉浅，绝知此事要躬行",
+            "业精于勤，荒于嬉；行成于思，毁于随",
+            "立身以立学为先，立学以读书为本",
+            "学而不思则罔，思而不学则殆",
+            "读书破万卷，下笔如有神",
+            "玉不琢，不成器；人不学，不知道",
+            "学海无涯，唯勤是岸",
+            "锲而不舍，金石可镂",
+            "大鹏一日同风起，扶摇直上九万里",
+            "青春易逝，岁月无情",
+            "天道酬勤，日新月异",
+            "学无止境，砥砺前行",
+            "明日复明日，明日何其多",
+            "蚕丝虽细，犹有条理",
+            "不经一番寒彻骨，怎得梅花扑鼻香",
+            "学问之道无他，求其放心而已矣",
+            "读书之法，在于循序而渐进",
+            "学而时习之，不亦说乎",
+            "温故而知新，可以为师矣",
+            "知之者不如好之者，好之者不如乐之者",
+            "博学而笃志，切问而近思",
+            "学而不厌，诲人不倦",
+            "逝者如斯夫，不舍昼夜",
+            "路漫漫其修远兮，吾将上下而求索"
+        ];
+
+        // 添加表白彩蛋相关函数
+        let clickCount = 0;
+        let clickTimer = null;
+
+        function triggerLoveEffect() {
+            clickCount++;
+            
+            // 清除之前的定时器
+            if (clickTimer) {
+                clearTimeout(clickTimer);
+            }
+            
+            // 设置新的定时器，3秒后重置点击次数
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+            }, 3000);
+
+            // 需要连续点击5次才触发效果
+            if (clickCount >= 5) {
+                const loveEffect = document.getElementById('loveEffect');
+                const loveContent = document.getElementById('loveContent');
+                
+                loveEffect.classList.add('show');
+                setTimeout(() => {
+                    loveContent.classList.add('show');
+                }, 500);
+                
+                // 重置点击计数
+                clickCount = 0;
+            }
+        }
+
+        function hideLoveEffect() {
+            const loveEffect = document.getElementById('loveEffect');
+            const loveContent = document.getElementById('loveContent');
+            
+            loveContent.classList.remove('show');
+            setTimeout(() => {
+                loveEffect.classList.remove('show');
+            }, 500);
+        }
+
+        // 添加主题切换功能
+        function toggleTheme() {
+            const body = document.body;
+            const themeBtn = document.querySelector('.theme-toggle');
+            
+            if (body.classList.contains('ink-theme')) {
+                body.classList.remove('ink-theme');
+                themeBtn.style.transform = 'rotate(0deg)';
+            } else {
+                body.classList.add('ink-theme');
+                themeBtn.style.transform = 'rotate(360deg)';
+            }
+        }
+    </script>
+</body>
+</html> 

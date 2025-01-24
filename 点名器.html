@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高二十二班学生点名器</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            margin-top: 10%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        .container.footer {
+            background-color: #1cfc88;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+
+        }
+
+        .schoollogo {
+            display: inline-block;
+            vertical-align: middle;
+            width: 200px;
+            height: 150px;
+            box-shadow: 9px 11px 0px -2px rgb(128, 128, 128, 0.64);
+            border-radius: 100px
+        }
+
+        .infos {
+            display: inline-block;
+            font-size: 40px;
+            font-weight: bold;
+            color: #44ffa9;
+            transform: skewX(-10deg);
+            letter-spacing: 3px;
+            -webkit-box-reflect: below 1px linear-gradient(transparent 30%, rgba(0, 0, 0, 0.35));
+            text-decoration: none;
+            /* font-family: "STXingkai", "STXingkai-Regular", "华文行楷", cursive; */
+
+
+        }
+    </style>
+</head>
+
+<body>
+    <span><a href="http://www.lhgz.net.cn/WarticleList.aspx?typeid=uZ9QPwIjYeg%3D"><img
+                src="https://pic.baike.soso.com/ugc/baikepic2/0/20240507073628-489633415_png_852_676_533051.jpg/300"
+                alt="六合高级中学" class="schoollogo"></a></span>
+    <span><a class="infos"
+            href="http://www.lhgz.net.cn/WarticleList.aspx?typeid=uZ9QPwIjYeg%3D">&nbsp;江苏省六合高级中学</a></span><span
+        style="font-size: 10px;">&nbsp;&nbsp;&nbsp;防作弊1.0测试版本学生点名器</span>
+    <div class="container">
+
+        <h1>点名器</h1>
+        <button id="drawButton">随机点名</button>
+        <button id="resetButton">重置概率</button>
+        <h2 id="result"></h2>
+        <footer class="footer">
+            <p>&copy; Autpar给您拜个早年嘞~</p>
+        </footer>
+    </div>
+
+
+</body>
+<script>
+    const participants = [
+        { name: '陈家乐', probability: 1 },
+        { name: '陈静文', probability: 1 },
+        { name: '陈语嫣', probability: 1 },
+        { name: '陈钰婷', probability: 1 },
+        { name: '成晓宇', probability: 1 },
+        { name: '丁杰', probability: 1 },
+        { name: '傅蕾', probability: 1 },
+        { name: '葛广意', probability: 1},
+        { name: '李鼎硕', probability: 1 },
+        { name: '李致远', probability: 1 },
+        { name: '林舒易', probability: 1 },
+        { name: '林熹', probability: 1 },
+        { name: '林心悦', probability: 1 },
+        { name: '林悦', probability: 1 },
+        { name: '卢峻博', probability: 1 },
+        { name: '庞智胤', probability: 1 },
+        { name: '钱林', probability: 1 },
+        { name: '施良旭', probability: 1 },
+        { name: '唐金健', probability: 1 },
+        { name: '汪锐旸', probability: 1 },
+        { name: '王金应', probability: 1 },
+        { name: '王乐', probability: 1 },
+        { name: '王心睿', probability: 1 },
+        { name: '王星晨', probability: 1 },
+        { name: '王梓林', probability: 1 },
+        { name: '徐玛丽', probability: 1 },
+        { name: '徐舒萤', probability: 1 },
+        { name: '徐伟杰', probability: 1 },
+        { name: '徐文浩', probability: 1 },
+        { name: '徐源生', probability: 1 },
+        { name: '徐中星', probability: 1 },
+        { name: '徐子涛', probability: 1 },
+        { name: '许慧珊', probability: 1 },
+        { name: '杨畅', probability: 1 },
+        { name: '杨欢', probability: 1 },
+        { name: '杨兆轩', probability: 1 },
+        { name: '詹叠薪', probability: 1 },
+        { name: '张华晨', probability: 1 },
+        { name: '张吉芸', probability: 1 },
+        { name: '张岩', probability: 1 },
+        { name: '赵福临', probability: 1 },
+        { name: '郑宇航', probability: 1 },
+        { name: '周思尧', probability: 1 },
+        { name: '朱芸瑞', probability: 1 }
+    ];
+
+    // 重置所有概率为1
+    function resetProbabilities() {
+        participants.forEach(participant => {
+            participant.probability = 1;
+        });
+    }
+
+    // 计算概率总和
+    function calculateProbabilities() {
+        const totalProbabilities = participants.reduce((sum, participant) => sum + participant.probability, 0);
+        return participants.map(participant => participant.probability / totalProbabilities);
+    }
+
+    document.getElementById('drawButton').addEventListener('click', () => {
+        const normalizedProbabilities = calculateProbabilities();
+        const randomNum = Math.random();
+        let cumulative = 0;
+
+        for (let i = 0; i < participants.length; i++) {
+            cumulative += normalizedProbabilities[i];
+            if (randomNum <= cumulative) {
+                document.getElementById('result').innerText = `被点名的是: ${participants[i].name}`;
+                // 降低被点名者的概率
+                participants[i].probability *= 0.2; // 将概率降低为原来的20%
+                return;
+            }
+        }
+    });
+
+    // 事件监听器用于重置概率
+    document.getElementById('resetButton').addEventListener('click', () => {
+        resetProbabilities();
+        document.getElementById('result').innerText = '所有概率已重置！点名面前 众生平等！';
+    });
+</script>
+
+</html>

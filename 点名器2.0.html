@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点名器</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Gyu&display=swap'); /* 引入行草字体 */
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column; /* 使内容垂直排列 */
+        }
+
+        .header {
+            display: flex; /* 使用Flexbox使Logo和名称在同一行 */
+            align-items: center; /* 垂直居中对齐 */
+            margin-bottom: 20px;
+        }
+
+        .school-name {
+            font-family: 'Kaisei Gyu', cursive; /* 使用行草字体 */
+            font-size: 28px; /* 字体大小 */
+            color: #333; /* 字体颜色 */
+            margin-left: 10px; /* Logo与学校名称的间距 */
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        img {
+            width: 100px; /* logo宽度 */
+            height: auto; /* 高度自适应 */
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #28a745; /* 按钮背景色设为绿色 */
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838; /* 悬停时变深的绿色 */
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 40px; /* 大字体 */
+            color: #333;
+            font-weight: bold; /* 加粗字体 */
+        }
+
+        .message {
+            margin-top: 10px;
+            font-size: 16px; /* 提示字体大小 */
+            color: #5a5a5a; /* 提示文本颜色 */
+        }
+        .schoollogo {
+            display: inline-block;
+            vertical-align: middle;
+            width: 100px;
+            height: 75px;
+            box-shadow: 9px 11px 0px -2px rgb(128, 128, 128, 0.64);
+            border-radius: 100px
+        }
+        .container.footer {
+            background-color: #1cfc88;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="http://www.lhgz.net.cn/WarticleList.aspx?typeid=uZ9QPwIjYeg%3D"><img class="schoollogo" src="https://pic.baike.soso.com/ugc/baikepic2/0/20240507073628-489633415_png_852_676_533051.jpg/300" alt="学校Logo"></a> <!-- 替换为学校Logo的URL -->
+        <div class="school-name">江苏省六合高级中学</div> <!-- 学校名称 -->
+    </div>
+
+    <div class="container">
+        <h1>2.0版点名器</h1>
+
+        <label for="numSelect">选择点名人数:</label>
+        <select id="numSelect">
+            <option value="1">1人</option>
+            <option value="2">2人</option>
+            <option value="3">3人</option>
+            <option value="4">4人</option>
+            <option value="5">5人</option>
+        </select>
+
+        <div id="result" class="result"></div>
+
+        <button id="drawButton">开始点名</button>
+        <button id="resetButton">重置概率</button>
+        <div id="message" class="message"></div> <!-- 提示信息区域 -->
+        <footer class="footer">
+                <p>&copy; Autpar给您拜个早年嘞~</p>
+            </footer>
+    </div>
+
+    <script>
+        const students = [
+        { name: '陈家乐', probability: 1 },
+        { name: '陈静雯', probability: 1 },
+        { name: '陈语嫣', probability: 1 },
+        { name: '陈钰婷', probability: 1 },
+        { name: '成晓宇', probability: 1 },
+        { name: '丁杰', probability: 1 },
+        { name: '傅蕾', probability: 1 },
+        { name: '葛广意', probability: 1},
+        { name: '李鼎硕', probability: 1 },
+        { name: '李致远', probability: 1 },
+        { name: '林舒易', probability: 1 },
+        { name: '林熹', probability: 1 },
+        { name: '林心悦', probability: 1 },
+        { name: '林悦', probability: 1 },
+        { name: '卢峻博', probability: 1 },
+        { name: '庞智胤', probability: 1 },
+        { name: '钱林', probability: 1 },
+        { name: '施良旭', probability: 1 },
+        { name: '唐金健', probability: 1 },
+        { name: '汪锐旸', probability: 1 },
+        { name: '王金应', probability: 1 },
+        { name: '王乐', probability: 1 },
+        { name: '王心睿', probability: 1 },
+        { name: '王星晨', probability: 1 },
+        { name: '王梓林', probability: 1 },
+        { name: '徐玛丽', probability: 1 },
+        { name: '徐舒莹', probability: 1 },
+        { name: '徐伟杰', probability: 1 },
+        { name: '徐文浩', probability: 1 },
+        { name: '徐源生', probability: 1 },
+        { name: '徐中星', probability: 1 },
+        { name: '徐子涛', probability: 1 },
+        { name: '许慧珊', probability: 1 },
+        { name: '杨畅', probability: 1 },
+        { name: '杨欢', probability: 1 },
+        { name: '杨兆轩', probability: 1 },
+        { name: '詹叠薪', probability: 1 },
+        { name: '张华晨', probability: 1 },
+        { name: '张吉芸', probability: 1 },
+        { name: '张岩', probability: 1 },
+        { name: '赵福临', probability: 1 },
+        { name: '郑宇航', probability: 1 },
+        { name: '周思尧', probability: 1 },
+        { name: '朱芸瑞', probability: 1 }
+        ]; // 学生名单和初始概率均为1
+
+        // 重置概率为1
+        function resetProbabilities() {
+            students.forEach(student => {
+                student.probability = 1;
+            });
+        }
+
+        document.getElementById('drawButton').addEventListener('click', function() {
+            const numSelect = parseInt(document.getElementById('numSelect').value);
+            const selectedStudents = [];
+
+            const selected = [];
+            while (selected.length < numSelect) {
+                const totalProbability = students.reduce((acc, student) => acc + student.probability, 0);
+                if (totalProbability === 0) break; // 如果概率都为0，退出循环
+
+                const random = Math.random() * totalProbability;
+                let cumulative = 0;
+
+                for (const student of students) {
+                    cumulative += student.probability;
+                    if (random <= cumulative && !selected.includes(student.name)) {
+                        selected.push(student.name);
+                        // 被选中后降低概率
+                        student.probability *= 0.4; // 降低60%概率
+                        break;
+                    }
+                }
+            }
+
+            document.getElementById('result').innerHTML = selected.join(', ') || '没有可选的学生';
+
+            // 点名后清除提示信息
+            document.getElementById('message').innerHTML = ''; 
+        });
+
+        document.getElementById('resetButton').addEventListener('click', function() {
+            resetProbabilities();
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('message').innerHTML = "云卷云舒，概率归一，愿每位同学都有机会绽放光芒"; // 诗意提示
+            
+            // 设置定时器，1秒后清除提示信息
+            setTimeout(() => {
+                document.getElementById('message').innerHTML = ''; 
+            }, 2000);
+        });
+
+        // 网页初始加载时重置概率
+        resetProbabilities();
+    </script>
+</body>
+</html>
